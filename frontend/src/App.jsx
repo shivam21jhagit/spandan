@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+﻿import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import useThemeStore from './stores/themeStore'
 import useAuthStore from './stores/authStore'
@@ -20,6 +20,9 @@ import HelpPage from './pages/HelpPage'
 import AdminPage from './pages/AdminPage'
 import { API_URL } from './config.js'
 import { isTokenExpired } from './lib/jwt.js'
+import LearningReportPage from './pages/LearningReportPage'
+import TeacherLearningReportsPage from './pages/TeacherLearningReportsPage'
+import TeacherLearningReportDetailPage from './pages/TeacherLearningReportDetailPage'
 
 function App() {
   const { isDark } = useThemeStore()
@@ -76,7 +79,7 @@ function App() {
 
         // Send the Samagama token to the Spandan backend, which re-verifies it
         // server-side and provisions the account from the identity Samagama returns.
-        // We deliberately do not send email/name/admin flags — the server does not trust them.
+        // We deliberately do not send email/name/admin flags â€” the server does not trust them.
         const spandanResponse = await fetch(`${API_URL}/auth/samagama-auto-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -172,6 +175,19 @@ function App() {
             <RoomResultsPage />
           </ProtectedRoute>
         } />
+        <Route path="/teacher/room/:roomId/learning-reports" element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <TeacherLearningReportsPage />
+          </ProtectedRoute>
+        } />
+	<Route
+  path="/teacher/learning-report/:roomId/:studentId"
+  element={
+    <ProtectedRoute allowedRoles={['teacher']}>
+      <TeacherLearningReportDetailPage />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/teacher/help" element={
           <ProtectedRoute allowedRoles={['teacher']}>
             <HelpPage />
@@ -216,6 +232,11 @@ function App() {
         <Route path="/student/session/:roomCode" element={
           <ProtectedRoute allowedRoles={['student']}>
             <StudentRoomPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/learning-report/:roomId" element={
+          <ProtectedRoute allowedRoles={['student']}>
+              <LearningReportPage />
           </ProtectedRoute>
         } />
       </Routes>

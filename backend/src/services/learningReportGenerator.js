@@ -39,13 +39,39 @@ export async function generateStudentLearningReport(
     .filter(Boolean)
     .join('\n\n')
 
-  const aiAnalysis = await generateLearningReportAI({
-    metrics,
-    responses,
-    questions,
-    transcript: transcriptText,
-    provider
-  })
+
+  let aiAnalysis
+  let reportError = ''
+
+  try {
+    aiAnalysis = await generateLearningReportAI({
+      metrics,
+      responses,
+      questions,
+      transcript: transcriptText,
+      provider
+    })
+  } catch (error) {
+    // Preserve the real performance metrics if AI is unavailable.
+    console.error(
+      `[learning-report] AI analysis unavailable for student ${studentId}:`,
+      error.message
+    )
+
+    reportStatus = 'completed'
+    reportError = `AI analysis unavailable: ${error.message}`
+
+    aiAnalysis = {
+      summary: `Metrics-based report only. AI analysis was unavailable. The student attempted ${metrics.attempted} of ${metrics.totalQuestions} questions and answered ${metrics.correct} correctly, with ${metrics.accuracy}% accuracy.`,
+      strengths: [],
+      weaknesses: [],
+      recommendations: [
+        'Review the questions answered incorrectly.',
+        'Practice the session topics and attempt similar questions again.'
+      ]
+    }
+  }
+
 
   const report = await LearningReport.findOneAndUpdate(
     { roomId, studentId },
@@ -55,7 +81,7 @@ export async function generateStudentLearningReport(
       metrics,
       aiAnalysis,
       status: 'completed',
-      error: ''
+      error: reportError
     },
     {
       new: true,

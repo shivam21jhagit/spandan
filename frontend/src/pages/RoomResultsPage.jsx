@@ -271,6 +271,43 @@ function RoomResultsPage() {
             ← Back
           </button>
 
+{user?.role === 'teacher' && room?.endedAt && (
+  <button
+    onClick={() => navigate(`/teacher/room/${roomId}/learning-reports`)}
+    style={{
+      padding: '10px 18px',
+      borderRadius: 8,
+      border: 0,
+      background: '#2563eb',
+      color: 'white',
+      cursor: 'pointer',
+      fontWeight: 600,
+      marginLeft: 10
+    }}
+  >
+    Student Learning Reports →
+  </button>
+)}
+
+{user?.role === 'student' && room?.endedAt && (
+  <button
+    onClick={() => navigate(`/student/learning-report/${roomId}`)}
+    style={{
+      padding: '10px 18px',
+      borderRadius: '8px',
+      border: 'none',
+      background: 'var(--accent-color, #2563eb)',
+      color: '#fff',
+      cursor: 'pointer',
+      fontWeight: 600,
+      marginLeft: '10px'
+    }}
+  >
+    View Learning Report →
+  </button>
+)}
+
+
           {/* Overview Stats */}
           <div style={{
             display: 'grid',
